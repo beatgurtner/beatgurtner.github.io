@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+</head>
+<body>
+    <p>Redirecting back to INTRVL app...</p>
+    <script>
+        // Get the code from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        
+        // Construct the redirect URL
+        const redirectUrl = `intrvl://spotify?${error ? 'error=' + error : 'code=' + code}`;
+        
+        // Redirect
+        window.location.replace(redirectUrl);
+    </script>
+</body>
+</html>
