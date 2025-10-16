@@ -1,21 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Redirecting...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTRVL - Connecting to Strava</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0A0E27 0%, #1A1F3A 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: #00D4FF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .logo svg {
+            width: 40px;
+            height: 40px;
+            fill: #0A0E27;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        
+        p {
+            font-size: 16px;
+            color: #9CA3AF;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto;
+            border: 3px solid rgba(0, 212, 255, 0.2);
+            border-top: 3px solid #00D4FF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #6B7280;
+        }
+        
+        .success {
+            color: #10B981;
+        }
+        
+        .error {
+            color: #EF4444;
+        }
+        
+        .dots::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting back to INTRVL app...</p>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-10h2v5h-2zm0 6h2v2h-2z"/>
+            </svg>
+        </div>
+        
+        <h1 id="title">Connecting to Strava</h1>
+        <p id="message">Redirecting you back to INTRVL<span class="dots"></span></p>
+        
+        <div class="spinner" id="spinner"></div>
+        
+        <div class="status" id="status"></div>
+    </div>
+    
     <script>
         // Get the code from the URL
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const error = urlParams.get('error');
         
+        const titleEl = document.getElementById('title');
+        const messageEl = document.getElementById('message');
+        const spinnerEl = document.getElementById('spinner');
+        const statusEl = document.getElementById('status');
+        
+        if (error) {
+            // Error state
+            titleEl.textContent = 'Connection Failed';
+            messageEl.innerHTML = 'Unable to connect to Strava';
+            messageEl.className = 'error';
+            spinnerEl.style.display = 'none';
+            statusEl.textContent = 'Error: ' + error;
+            statusEl.className = 'status error';
+        } else if (code) {
+            // Success state
+            titleEl.textContent = 'Success!';
+            messageEl.innerHTML = 'Redirecting to INTRVL<span class="dots"></span>';
+            messageEl.className = 'success';
+            statusEl.textContent = '✓ Authentication successful';
+            statusEl.className = 'status success';
+        }
+        
         // Construct the redirect URL
         const redirectUrl = `intrvl://strava?${error ? 'error=' + error : 'code=' + code}`;
         
-        // Redirect
-        window.location.replace(redirectUrl);
+        // Redirect after a short delay for better UX
+        setTimeout(() => {
+            window.location.replace(redirectUrl);
+            
+            // Fallback message if redirect doesn't work
+            setTimeout(() => {
+                messageEl.innerHTML = 'If nothing happens, please return to the INTRVL app manually.';
+                spinnerEl.style.display = 'none';
+            }, 2000);
+        }, 1000);
     </script>
 </body>
 </html>
